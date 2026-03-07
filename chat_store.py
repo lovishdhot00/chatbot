@@ -1,5 +1,5 @@
 import mysql.connector
-from langchain_core.messages import HumanMessage,AIMessage,SystemMessage
+from langchain_core.messages import HumanMessage,AIMessage
 import uuid
 import os
 from dotenv import load_dotenv
@@ -12,6 +12,13 @@ def get_connection():
     password=os.getenv("MYSQLPASSWORD"),
     database=os.getenv("MYSQLDATABASE")
 )
+# def get_connection():
+#      return mysql.connector.connect(
+#     host="localhost",
+#     user="root",
+#     password="2580",
+#     database="chatbot"
+# )
 
 def create_user(username, password):
     conn=get_connection()

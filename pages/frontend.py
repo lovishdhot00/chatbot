@@ -1,11 +1,23 @@
 import streamlit as st
-from backend import model,short_term_memory
+from backend import model
 from prompts import title_template,update_summary_template,stm_template
 from chat_store import get_connection,save_messages,save_conversation_id,fetch_messages,fetch_title,fetch_summary,update_summary,fetch_trimmed_messages,set_false_is_active,set_true_is_summarized,fetch_To_Summarize
 import uuid
 from langchain_core.messages import HumanMessage,AIMessage,SystemMessage
 from langchain_core.messages.utils import trim_messages,count_tokens_approximately
 from snowflake import SnowflakeGenerator
+from streamlit_cookies_manager import EncryptedCookieManager
+
+cookies = EncryptedCookieManager(password="secret_key")
+
+if not cookies.ready():
+    st.stop()
+
+if "user_id" not in st.session_state:
+    if "user_id" in cookies and cookies["user_id"]:
+        st.session_state["user_id"] = bytes.fromhex(cookies["user_id"])
+    else:
+        st.switch_page("login_page.py")
 prompt=st.chat_input()
 get_connection()
 
@@ -89,7 +101,7 @@ with st.sidebar:
             del st.session_state["title"]
         for key in ["messages","trimmed_msgs","remaining_old_msgs","to_show_messages","summary"]:
             if key in st.session_state:
-                del st.session_state[key]    
+                del st.session_state[key]  
 
 
 for id_title in fetch_title(user_id=st.session_state["user_id"]):
@@ -103,7 +115,4 @@ for id_title in fetch_title(user_id=st.session_state["user_id"]):
                     st.write(message.content)
             if isinstance(message,AIMessage):
                 with st.chat_message("ai"):
-                    st.write(message.content)
-
-
-
+                    st.write(message.content)         
