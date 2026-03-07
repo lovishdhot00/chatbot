@@ -3,14 +3,15 @@ from langchain_core.messages import HumanMessage,AIMessage
 import uuid
 import os
 from dotenv import load_dotenv
+import streamlit as st
 load_dotenv()
 def get_connection():
     return mysql.connector.connect(
-    host=os.getenv("MYSQLHOST"),
-    port= int(os.getenv("MYSQLPORT")),
-    user=os.getenv("MYSQLUSER"),
-    password=os.getenv("MYSQLPASSWORD"),
-    database=os.getenv("MYSQLDATABASE")
+    host=st.secrets["MYSQLHOST"],
+    port= int(st.secrets["MYSQLPORT"]),
+    user=st.secrets["MYSQLUSER"],
+    password=st.secrets["MYSQLPASSWORD"],
+    database=st.secrets["MYSQLDATABASE"]
 )
 # def get_connection():
 #      return mysql.connector.connect(
