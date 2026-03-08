@@ -1,8 +1,0 @@
-streamlit
-langchain-core
-langchain-huggingface
-huggingface-hub
-python-dotenv
-mysql-connector-python
-streamlit-cookies-manager
-snowflake-id
