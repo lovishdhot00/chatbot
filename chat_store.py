@@ -4,7 +4,8 @@ import uuid
 import os
 from dotenv import load_dotenv
 import streamlit as st
-load_dotenv()
+# load_dotenv()
+@st.cache_resource
 def get_connection():
     return mysql.connector.connect(
     host=st.secrets["MYSQLHOST"],
@@ -28,8 +29,7 @@ def create_user(username, password):
     query="insert into users_table (user_id,username,password) values (%s,%s,%s)"
     cursor.execute(query,(user_id,username,password))
     conn.commit()
-    cursor.close()
-    conn.close()  
+    cursor.close()  
 
 
 def save_conversation_id(user_id,conversation_id,title):
@@ -40,7 +40,7 @@ def save_conversation_id(user_id,conversation_id,title):
     conn.commit()
 
     cursor.close()
-    conn.close()
+
 
 def save_messages(message_id,user_id,conversation_id,role,message):
     conn = get_connection()
@@ -50,7 +50,7 @@ def save_messages(message_id,user_id,conversation_id,role,message):
     conn.commit()
 
     cursor.close()
-    conn.close()   
+
 
 def fetch_user(username,password):
     conn = get_connection()
@@ -61,7 +61,6 @@ def fetch_user(username,password):
     conn.commit()
 
     cursor.close()
-    conn.close()
     return user
 
 def fetch_conversation_id(user):
@@ -76,7 +75,6 @@ def fetch_conversation_id(user):
     conn.commit()
 
     cursor.close()
-    conn.close()
     return conversations
 
 def fetch_messages(user_id,conversation_id):
@@ -92,8 +90,9 @@ def fetch_messages(user_id,conversation_id):
         elif role=="ai":
             base_messages_list.append(AIMessage(content=message))
     cursor.close()
-    conn.close()
     return base_messages_list
+
+
 def fetch_title(user_id):
     conn=get_connection()
     cursor=conn.cursor()
@@ -102,8 +101,8 @@ def fetch_title(user_id):
     id_title=cursor.fetchall()
     conn.commit()
     cursor.close()
-    conn.close()
     return id_title
+
 def fetch_summary(conversation_id):
     conn=get_connection()
     cursor=conn.cursor()
@@ -111,8 +110,8 @@ def fetch_summary(conversation_id):
     cursor.execute(query,(conversation_id,))
     summary=cursor.fetchone()
     cursor.close()
-    conn.close()
     return summary[0] if summary else None
+
 def update_summary(summary,user_id,conversation_id):
     conn=get_connection()
     cursor=conn.cursor()
@@ -120,7 +119,7 @@ def update_summary(summary,user_id,conversation_id):
     cursor.execute(query,(summary,user_id,conversation_id))
     conn.commit()
     cursor.close()
-    conn.close()
+
 def fetch_trimmed_messages(conversation_id):
     conn=get_connection()
     cursor=conn.cursor()
@@ -134,7 +133,6 @@ def fetch_trimmed_messages(conversation_id):
         elif role=="ai":
             base_messages_list.append(AIMessage(content=message,id=message_id))
     cursor.close()
-    conn.close()
     return base_messages_list
 def set_false_is_active(message_id):
     conn=get_connection()
@@ -143,7 +141,7 @@ def set_false_is_active(message_id):
     cursor.execute(query,(False,message_id)) 
     conn.commit()
     cursor.close()
-    conn.close()  
+      
 def set_true_is_summarized(message_id):
     conn=get_connection()
     cursor=conn.cursor()
@@ -151,7 +149,7 @@ def set_true_is_summarized(message_id):
     cursor.execute(query,(True,message_id)) 
     conn.commit()
     cursor.close()
-    conn.close() 
+    
 def fetch_To_Summarize(conversation_id):
     conn=get_connection()
     cursor=conn.cursor()
@@ -165,7 +163,6 @@ def fetch_To_Summarize(conversation_id):
         elif role=="ai":
             base_messages_list.append(AIMessage(content=message,id=message_id))    
     cursor.close()
-    conn.close()
     return base_messages_list
 # get_connection()
 
