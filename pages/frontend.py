@@ -6,9 +6,14 @@ import uuid
 from langchain_core.messages import HumanMessage,AIMessage,SystemMessage
 from langchain_core.messages.utils import trim_messages,count_tokens_approximately
 from snowflake import SnowflakeGenerator
+from pdfpipeline import process_pdf
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
+import pytesseract
 
 check_login()
-prompt=st.chat_input()
+user_input=st.chat_input(accept_file=True,file_type="pdf")
 get_connection()
                       
 if "conversation_id" not in st.session_state:
@@ -22,7 +27,33 @@ if "summary" not in st.session_state or st.session_state["summary"] is None :
 if "current_messages" not in st.session_state:
     st.session_state["current_messages"]=[]    
 generator=SnowflakeGenerator(1)
-if prompt is not None:
+if user_input is not None:
+    prompt=user_input["text"]
+    if user_input["files"]!=[]:
+        pytesseract.pytesseract.tesseract_cmd=r"C:\Users\lovis\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+        uploaded_file=user_input["files"][0]
+        file_bytes = uploaded_file.read()
+        text=process_pdf(file_bytes=file_bytes)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500, chunk_overlap=100
+        )
+        splitted_docs=text_splitter.split_documents(documents=text)
+        embeddings=HuggingFaceEmbeddings()
+        vector_store = Chroma(
+            collection_name="example_collection",
+            embedding_function=embeddings
+        )
+        vector_store.add_documents(documents=splitted_docs)
+        result=vector_store.similarity_search(prompt)
+        page_number=[]
+        for doc in result:
+            if doc.metadata["page"] not in page_number:
+                page_number.append(doc.metadata["page"])
+        all_docs=vector_store.get(
+            where={"page":{"$in":page_number}}
+        )
+        vector_store.delete_collection()
+        
     if st.session_state["current_messages"] != []:
         for message in st.session_state["current_messages"]:
             if isinstance(message,HumanMessage):
@@ -35,7 +66,11 @@ if prompt is not None:
         st.write(prompt)
     st.session_state["current_messages"].append(HumanMessage(content=prompt))
     formatted_trimmed_messages=format_messages(st.session_state["messages"])
-    stm_prompt=stm_template.invoke({"summary":st.session_state["summary"],"trimmed_messages":formatted_trimmed_messages,"prompt":prompt})
+    if user_input["files"]!=[]:
+        retrived_context=all_docs
+    else:
+        retrived_context="No external context provided"
+    stm_prompt=stm_template.invoke({"summary":st.session_state["summary"],"trimmed_messages":formatted_trimmed_messages,"retrieved_context": retrived_context,"prompt":prompt})
     output=model.stream(stm_prompt)
     with st.chat_message("ai"):
         response=st.write_stream(output)           

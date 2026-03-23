@@ -1,10 +1,8 @@
 import mysql.connector
 from langchain_core.messages import HumanMessage,AIMessage
 import uuid
-import os
 from dotenv import load_dotenv
 import streamlit as st
-# load_dotenv()
 @st.cache_resource
 def get_connection():
     return mysql.connector.connect(
@@ -58,8 +56,6 @@ def fetch_user(username,password):
     query="select user_id from users_table where username=%s AND password=%s"
     cursor.execute(query,(username,password))
     user= cursor.fetchone()
-    conn.commit()
-
     cursor.close()
     return user
 
@@ -72,8 +68,6 @@ def fetch_conversation_id(user):
     conversations=[]
     for id in conversation_id:
         conversations.append(id[0])
-    conn.commit()
-
     cursor.close()
     return conversations
 
@@ -99,7 +93,6 @@ def fetch_title(user_id):
     query="select conversation_id,title from conversations_id_table where user_id=%s order by created_at DESC"
     cursor.execute(query,(user_id,))
     id_title=cursor.fetchall()
-    conn.commit()
     cursor.close()
     return id_title
 

@@ -1,8 +1,14 @@
 streamlit
 langchain-core
+langchain-coummunity
 langchain-huggingface
-huggingface-hub
+langchain-text-splitters
+langchain-chroma
 python-dotenv
 mysql-connector-python
 streamlit-cookies-manager
 snowflake-id
+pytesseract
+chromadb
+pyMuPDF
+Pillow

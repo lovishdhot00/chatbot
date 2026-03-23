@@ -56,34 +56,44 @@ Update the long-term memory summary.
 
 from langchain_core.prompts import ChatPromptTemplate
 
-stm_template = ChatPromptTemplate.from_messages([
+stm_template = stm_template = ChatPromptTemplate.from_messages([
     
     ("system",
      """You are a helpful AI assistant continuing an ongoing conversation.
 
-You will receive three types of context:
+You will receive four types of context:
 
 1. Conversation Summary:
-This is a condensed summary of older messages that were removed from the context window.
-Use it to remember important facts, preferences, and topics from earlier in the conversation.
+A condensed summary of older messages removed from the context window.
+Use it to recall important past information.
 
 2. Recent Conversation:
-These are the most recent messages between the user and the assistant.
-Treat these as the primary context.
+The most recent messages between the user and assistant.
+This is the primary conversational context.
 
-3. Current User Message:
-This is the latest message from the user that you must respond to.
+3. Retrieved Context (Optional):
+Relevant chunks retrieved from uploaded documents (e.g., PDFs).
+Use this only when it is relevant to the user's query.
+
+4. Current User Message:
+The latest user query you must respond to.
 
 Instructions:
-- Use the recent conversation as the main context.
-- Use the summary to recall older information.
-- If the summary conflicts with the recent conversation, prioritize the recent conversation.
-- Respond naturally and continue the conversation.
+- Prioritize the Recent Conversation for continuity.
+- Use the Conversation Summary to recall past details.
+- Use Retrieved Context ONLY if it is relevant to the user's question.
+- If Retrieved Context is used, base your answer primarily on it.
+- If Retrieved Context conflicts with conversation, prefer Retrieved Context for factual answers.
+- If no relevant Retrieved Context is available, answer normally.
+- Do NOT fabricate information from Retrieved Context.
+- Respond naturally and helpfully.
 """),
 
     ("system", "Conversation Summary:\n{summary}"),
 
     ("system", "Recent Conversation:\n{trimmed_messages}"),
+
+    ("system", "Retrieved Context:\n{retrieved_context}"),
 
     ("human", "{prompt}")
 
