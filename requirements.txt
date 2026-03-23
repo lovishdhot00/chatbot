@@ -1,9 +1,9 @@
 streamlit
 langchain-core
-langchain-coummunity
 langchain-huggingface
 langchain-text-splitters
 langchain-chroma
+sentence_transformers
 python-dotenv
 mysql-connector-python
 streamlit-cookies-manager
