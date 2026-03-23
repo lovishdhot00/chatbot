@@ -30,7 +30,7 @@ generator=SnowflakeGenerator(1)
 if user_input is not None:
     prompt=user_input["text"]
     if user_input["files"]!=[]:
-        pytesseract.pytesseract.tesseract_cmd=r"C:\Users\lovis\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+        # pytesseract.pytesseract.tesseract_cmd=r"C:\Users\lovis\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
         uploaded_file=user_input["files"][0]
         file_bytes = uploaded_file.read()
         text=process_pdf(file_bytes=file_bytes)
