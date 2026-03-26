@@ -3,8 +3,9 @@ from langchain_core.messages import HumanMessage,AIMessage
 import uuid
 from dotenv import load_dotenv
 import streamlit as st
+
 @st.cache_resource
-def get_connection():
+def get_first_connection():
     return mysql.connector.connect(
     host=st.secrets["MYSQLHOST"],
     port= int(st.secrets["MYSQLPORT"]),
@@ -19,6 +20,12 @@ def get_connection():
 #     password="2580",
 #     database="chatbot"
 # )
+
+def get_connection():
+    conn = get_first_connection()
+    if not conn.is_connected():
+        conn.reconnect(attempts=3, delay=2)
+    return conn
 
 def create_user(username, password):
     conn=get_connection()
